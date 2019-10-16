@@ -70,10 +70,16 @@ pub fn sign_of_det2(x1: f64, y1: f64, x2: f64, y2: f64) -> i32 {
 }
 
 
-///Mid2D computes the mid coordinates
+///Computes the mid 2d coordinates
 #[inline]
 pub fn mid_2d(a: &[f64], b: &[f64]) -> (f64, f64) {
     (mid(a[X], b[X]), mid(a[Y], b[Y]))
+}
+
+///Computes the mid of 3d coordinates
+#[inline]
+pub fn mid_3d(a: &[f64], b: &[f64]) -> (f64, f64, f64) {
+    (mid(a[X], b[X]), mid(a[Y], b[Y]), mid(a[Z], b[Z]))
 }
 
 ///Mid computes the mean of two values
@@ -177,5 +183,9 @@ mod mutil_tests {
         assert_eq!(mid_2d(&[0., 0.], &[100., 100.]), (50., 50.));
         assert_eq!(mid_2d(&[3., 6.], &[7., 9.]), (5.0, 7.5));
         assert_eq!(mid_2d(&[-3., -6.], &[7., 9.]), (2.0, 1.5));
+
+        assert_eq!(mid_3d(&[0., 0., 0.], &[100., 100., 100.]), (50., 50., 50.));
+        assert_eq!(mid_3d(&[3., 6., -2.4], &[7., 9., 6.3]), (5.0, 7.5 , 1.95));
+        assert_eq!(mid_3d(&[-3., -6., 3.], &[7., 9., 9.]), (2.0, 1.5, 6.));
     }
 }
