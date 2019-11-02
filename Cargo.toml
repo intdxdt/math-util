@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 robust_determinant  = { git = "https://github.com/intdxdt/robust_determinant", branch = "master" }
+bs-num  = { git = "https://github.com/intdxdt/bs-num", branch = "master" }

@@ -1,5 +1,6 @@
 pub use std::f64::consts::{E, SQRT_2, LN_2, PI, FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
-use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
+pub use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
+pub use bs_num::{max, min, Float, Num, Numeric, Zero};
 
 pub const PRECISION: i32 = 12;
 pub const EPSILON: f64 = 1.0e-12;
@@ -9,15 +10,41 @@ const Y: usize = 1;
 const Z: usize = 2;
 
 ///Compare two floating point values
+pub trait Feq: Float + Clone + Copy + PartialOrd {
+    const EPS: Self;
+    ///Compare two floating point values to nearest epsilon
+    #[inline]
+    fn feq_eps(self, other: Self, eps: Self) -> bool {
+        self == other || ((self - other).abs() < eps)
+    }
+
+    ///Compare two floating point values
+    #[inline]
+    fn feq(self, other: Self) -> bool {
+        Self::feq_eps(self, other, Self::EPS)
+    }
+}
+macro_rules! impl_feq {
+    ($T:ty) => {
+        impl Feq for $T {
+            const EPS: $T = 1.0e-12;
+        }
+    };
+}
+impl_feq!(f64);
+impl_feq!(f32);
+
+
+
 #[inline]
-pub fn feq_eps(a: f64, b: f64, eps: f64) -> bool {
-    (a == b) || ((a - b).abs() < eps)
+pub fn feq_eps<T>(a: T, b: T, eps: T) -> bool where T: Feq {
+    a.feq_eps(b, eps)
 }
 
-///Compare two floating point values
+
 #[inline]
-pub fn feq(a: f64, b: f64) -> bool {
-    feq_eps(a, b, EPSILON)
+pub fn feq<T>(a: T, b: T) -> bool where T: Feq {
+    a.feq(b)
 }
 
 ///Rounds a float to the nearest whole number float
@@ -112,6 +139,9 @@ mod mutil_tests {
     fn test_feq() {
         assert!(0.3 != 0.1 + 0.2);
         assert!(feq(0.1 + 0.2, 0.3));
+        assert!((0.1 + 0.2).feq(0.3));
+        assert!((0.1f32 + 0.2f32).feq_eps(0.3f32, 1.0e-12f32));
+        assert!(feq_eps(0.1 + 0.2, 0.3, 1.0e-12));
         assert!(feq(-0.000000087422776, -0.000000087422780));
         assert!(feq(-0.000000087422776, -0.000000087422780));
         assert!(feq(0.0000000000000001224646799147353207, 0.0000000000000001224646799147353177));
@@ -185,7 +215,7 @@ mod mutil_tests {
         assert_eq!(mid_2d(&[-3., -6.], &[7., 9.]), (2.0, 1.5));
 
         assert_eq!(mid_3d(&[0., 0., 0.], &[100., 100., 100.]), (50., 50., 50.));
-        assert_eq!(mid_3d(&[3., 6., -2.4], &[7., 9., 6.3]), (5.0, 7.5 , 1.95));
+        assert_eq!(mid_3d(&[3., 6., -2.4], &[7., 9., 6.3]), (5.0, 7.5, 1.95));
         assert_eq!(mid_3d(&[-3., -6., 3.], &[7., 9., 9.]), (2.0, 1.5, 6.));
     }
 }
