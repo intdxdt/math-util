@@ -1,6 +1,6 @@
 pub use std::f64::consts::{E, SQRT_2, LN_2, PI, FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 pub use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
-pub use bs_num::{max, min, Float, Num, Numeric, Zero};
+pub use bs_num::{max, min, Float, Num, Numeric, Zero, One};
 
 pub const PRECISION: i32 = 12;
 pub const EPSILON: f64 = 1.0e-12;
@@ -10,7 +10,7 @@ const Y: usize = 1;
 const Z: usize = 2;
 
 ///Compare two floating point values
-pub trait Feq: Float + Clone + Copy + PartialOrd {
+pub trait Feq: Numeric {
     const EPS: Self;
     ///Compare two floating point values to nearest epsilon
     #[inline]
@@ -24,26 +24,42 @@ pub trait Feq: Float + Clone + Copy + PartialOrd {
         Self::feq_eps(self, other, Self::EPS)
     }
 }
-macro_rules! impl_feq {
+macro_rules! impl_feq_floats {
     ($T:ty) => {
         impl Feq for $T {
             const EPS: $T = 1.0e-12;
         }
     };
 }
-impl_feq!(f64);
-impl_feq!(f32);
+macro_rules! impl_feq_ints {
+    ($T:ty) => {
+        impl Feq for $T {
+            const EPS: $T = 0;
+            #[inline]
+            fn feq_eps(self, other: Self, _: Self) -> bool {
+                self == other
+            }
+        }
+    };
+}
 
+impl_feq_floats!(f64);
+impl_feq_floats!(f32);
+
+impl_feq_ints!(i64);
+impl_feq_ints!(i32);
 
 
 #[inline]
-pub fn feq_eps<T>(a: T, b: T, eps: T) -> bool where T: Feq {
+pub fn feq_eps<T>(a: T, b: T, eps: T) -> bool
+    where T: Feq {
     a.feq_eps(b, eps)
 }
 
 
 #[inline]
-pub fn feq<T>(a: T, b: T) -> bool where T: Feq {
+pub fn feq<T>(a: T, b: T) -> bool
+    where T: Feq {
     a.feq(b)
 }
 
@@ -139,6 +155,8 @@ mod mutil_tests {
     fn test_feq() {
         assert!(0.3 != 0.1 + 0.2);
         assert!(feq(0.1 + 0.2, 0.3));
+        assert!(feq(1 + 2, 3));
+        assert!((2i64 + 3i64).feq(5i64));
         assert!((0.1 + 0.2).feq(0.3));
         assert!((0.1f32 + 0.2f32).feq_eps(0.3f32, 1.0e-12f32));
         assert!(feq_eps(0.1 + 0.2, 0.3, 1.0e-12));
