@@ -31,6 +31,7 @@ macro_rules! impl_feq_floats {
         }
     };
 }
+
 macro_rules! impl_feq_ints {
     ($T:ty) => {
         impl Feq for $T {
