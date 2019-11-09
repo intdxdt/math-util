@@ -2,6 +2,8 @@ pub use std::f64::consts::{E, SQRT_2, LN_2, PI, FRAC_PI_2, FRAC_PI_3, FRAC_PI_4}
 pub use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
 pub use bs_num::{num, Num, NumCast, Float, FloatConst, Numeric, Zero, One, max, min};
 
+use std::ops::{AddAssign, SubAssign, MulAssign, DivAssign};
+
 pub const PRECISION: i32 = 12;
 pub const EPSILON: f64 = 1.0e-12;
 ///Indexing X[0], Y[1], Z[2]
@@ -10,9 +12,11 @@ const Y: usize = 1;
 const Z: usize = 2;
 
 ///Floating point behavioural trait
-pub trait Flt: Float + FloatConst + Feq {}
+pub trait Flt: Float + FloatConst + Feq + AddAssign + SubAssign + MulAssign + DivAssign {}
 
-impl<T> Flt for T where T: Float + FloatConst + Feq {}
+impl<T> Flt for T
+    where T: Float + FloatConst + Feq + AddAssign + SubAssign + MulAssign + DivAssign {}
+
 
 #[inline]
 pub fn const_pi<T>() -> T where T: Flt {
@@ -24,6 +28,7 @@ pub fn const_tau<T>() -> T where T: Flt {
     let k: T = num::cast(2).unwrap();
     k * const_pi::<T>()
 }
+
 
 ///Compare two floating point values
 pub trait Feq: Numeric {
