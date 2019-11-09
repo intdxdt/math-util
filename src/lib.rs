@@ -1,8 +1,6 @@
 pub use std::f64::consts::{E, SQRT_2, LN_2, PI, FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 pub use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
-pub use bs_num::{num, Num, NumCast, Float, FloatConst, Numeric, Zero, One, max, min};
-
-use std::ops::{AddAssign, SubAssign, MulAssign, DivAssign};
+pub use bs_num::{num, Num, NumCast, Float, Feq, Flt, FloatConst, Numeric, Zero, One, max, min};
 
 pub const PRECISION: i32 = 12;
 pub const EPSILON: f64 = 1.0e-12;
@@ -10,13 +8,6 @@ pub const EPSILON: f64 = 1.0e-12;
 const X: usize = 0;
 const Y: usize = 1;
 const Z: usize = 2;
-
-///Floating point behavioural trait
-pub trait Flt: Float + FloatConst + Feq + AddAssign + SubAssign + MulAssign + DivAssign {}
-
-impl<T> Flt for T
-    where T: Float + FloatConst + Feq + AddAssign + SubAssign + MulAssign + DivAssign {}
-
 
 #[inline]
 pub fn const_pi<T>() -> T where T: Flt {
@@ -34,49 +25,6 @@ pub fn const_epsilon<T>() -> T where T: Flt {
     let eps: T = num::cast(EPSILON).unwrap();
     eps
 }
-
-
-///Compare two floating point values
-pub trait Feq: Numeric {
-    const EPS: Self;
-    ///Compare two floating point values to nearest epsilon
-    #[inline]
-    fn feq_eps(self, other: Self, eps: Self) -> bool {
-        self == other || ((self - other).abs() < eps)
-    }
-
-    ///Compare two floating point values
-    #[inline]
-    fn feq(self, other: Self) -> bool {
-        Self::feq_eps(self, other, Self::EPS)
-    }
-}
-macro_rules! impl_feq_floats {
-    ($T:ty) => {
-        impl Feq for $T {
-            const EPS: $T = 1.0e-12;
-        }
-    };
-}
-
-macro_rules! impl_feq_ints {
-    ($T:ty) => {
-        impl Feq for $T {
-            const EPS: $T = 0;
-            #[inline]
-            fn feq_eps(self, other: Self, _: Self) -> bool {
-                self == other
-            }
-        }
-    };
-}
-
-impl_feq_floats!(f64);
-impl_feq_floats!(f32);
-
-impl_feq_ints!(i64);
-impl_feq_ints!(i32);
-
 
 #[inline]
 pub fn feq_eps<T>(a: T, b: T, eps: T) -> bool
@@ -110,12 +58,12 @@ pub fn round_0(x: f64) -> f64 {
 }
 
 #[inline]
-pub fn det2(mat2x2: &[Vec<f64>]) -> f64 {
+pub fn det2(mat2x2: &[[f64; 2]]) -> f64 {
     *rob_det2(mat2x2).last().unwrap()
 }
 
 #[inline]
-pub fn det3(mat3x3: &[Vec<f64>]) -> f64 {
+pub fn det3(mat3x3: &[[f64; 3]]) -> f64 {
     *rob_det3(mat3x3).last().unwrap()
 }
 
@@ -137,7 +85,7 @@ pub fn sign_of_det2(x1: f64, y1: f64, x2: f64, y2: f64) -> i32 {
     // returns -1 if the determinant is negative,
     // returns  1 if the determinant is positive,
     // returns  0 if the determinant is null.
-    sign(det2(&[vec!(x1, y1), vec!(x2, y2)])) as i32
+    sign(det2(&[[x1, y1], [x2, y2]])) as i32
 }
 
 
@@ -176,14 +124,15 @@ mod mutil_tests {
         assert_eq!(super::Y, 1usize);
         assert_eq!(super::Z, 2usize);
     }
+
     pub fn orientation_2d<T>(a: &[T], b: &[T], c: &[T]) -> T where T: Flt {
         let l = (a[1] - c[1]) * (b[0] - c[0]);
         let r = (a[0] - c[0]) * (b[1] - c[1]);
         let det = l - r;
         det
     }
-    fn test_sample<T>(v: T) where T: Flt {
 
+    fn test_sample<T>(v: T) where T: Flt {
         let m = T::from(EPSILON).unwrap();
         let pi: T = T::PI();
         let other_pi: T = num::cast(PI).unwrap();
@@ -255,13 +204,13 @@ mod mutil_tests {
 
     #[test]
     fn test_det() {
-        let mat3x3: Vec<Vec<f64>> = vec![
-            vec!(0.617988, 0.27225, 0.398392),
-            vec!(0.0552414, 0.258802, 0.800991),
-            vec!(0.60112, 0.921029, 0.413371),
+        let mat3x3: Vec<[f64; 3]> = vec![
+            [0.617988, 0.27225, 0.398392],
+            [0.0552414, 0.258802, 0.800991],
+            [0.60112, 0.921029, 0.413371],
         ];
 
-        let mat2x2: Vec<Vec<f64>> = vec![vec!(0.916756, 0.712766), vec!(0.546127, 0.498242)];
+        let mat2x2 = vec![[0.916756, 0.712766], [0.546127, 0.498242]];
         assert_eq!(
             round(det2(&mat2x2), PRECISION),
             round(0.06750558567000006, PRECISION),
