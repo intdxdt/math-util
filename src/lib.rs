@@ -9,6 +9,11 @@ const X: usize = 0;
 const Y: usize = 1;
 const Z: usize = 2;
 
+///Floating point behavioural trait
+pub trait Flt: Float + FloatConst + Feq {}
+
+impl<T> Flt for T where T: Float + FloatConst + Feq {}
+
 ///Compare two floating point values
 pub trait Feq: Numeric {
     const EPS: Self;
@@ -151,15 +156,15 @@ mod mutil_tests {
         assert_eq!(super::Z, 2usize);
     }
 
-    fn test_sample<T>(v:T) where T: Numeric + Float + FloatConst{
-        let pi : T = FloatConst::PI();
-        let other_pi :T = num::cast(PI).unwrap();
-        println!("pi = {:?}", pi)
+    fn test_sample<T>(v: T) where T: Flt {
+        let pi: T = T::PI();
+        let other_pi: T = num::cast(PI).unwrap();
+        println!("value {:?} = {:?}, {:?}", v, pi, other_pi)
     }
+
     #[test]
     fn test_feq() {
         test_sample(3.14f32);
-        let twenty: f32 = num::cast(PI).unwrap();
         assert!(0.3 != 0.1 + 0.2);
         assert!(feq(0.1 + 0.2, 0.3));
         assert!(feq(1 + 2, 3));
