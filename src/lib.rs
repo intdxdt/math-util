@@ -14,6 +14,17 @@ pub trait Flt: Float + FloatConst + Feq {}
 
 impl<T> Flt for T where T: Float + FloatConst + Feq {}
 
+#[inline]
+pub fn const_pi<T>() -> T where T: Flt {
+    T::PI()
+}
+
+#[inline]
+pub fn const_tau<T>() -> T where T: Flt {
+    let k: T = num::cast(2).unwrap();
+    k * const_pi::<T>()
+}
+
 ///Compare two floating point values
 pub trait Feq: Numeric {
     const EPS: Self;
@@ -163,8 +174,16 @@ mod mutil_tests {
     }
 
     #[test]
-    fn test_feq() {
+    fn test_numerics() {
         test_sample(3.14f32);
+        assert_eq!(const_pi::<f64>(), PI);
+        assert_eq!(const_tau::<f64>(), 2.0 * PI);
+        assert_eq!(const_pi::<f32>(), std::f32::consts::PI);
+        assert_eq!(const_tau::<f32>(), 2.0f32 * std::f32::consts::PI);
+    }
+
+    #[test]
+    fn test_feq() {
         assert!(0.3 != 0.1 + 0.2);
         assert!(feq(0.1 + 0.2, 0.3));
         assert!(feq(1 + 2, 3));
