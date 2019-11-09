@@ -2,8 +2,10 @@ pub use std::f64::consts::{E, SQRT_2, LN_2, PI, FRAC_PI_2, FRAC_PI_3, FRAC_PI_4}
 pub use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
 pub use bs_num::{num, Num, NumCast, Float, Feq, Flt, FloatConst, Numeric, Zero, One, max, min};
 
+pub const TAU: f64 = 2.0f64 * PI;
 pub const PRECISION: i32 = 12;
 pub const EPSILON: f64 = 1.0e-12;
+
 ///Indexing X[0], Y[1], Z[2]
 const X: usize = 0;
 const Y: usize = 1;
@@ -145,7 +147,7 @@ mod mutil_tests {
         test_sample(3.14f32);
         assert_eq!(const_epsilon::<f64>(), EPSILON);
         assert_eq!(const_pi::<f64>(), PI);
-        assert_eq!(const_tau::<f64>(), 2.0 * PI);
+        assert_eq!(const_tau::<f64>(), TAU);
         assert_eq!(const_pi::<f32>(), std::f32::consts::PI);
         assert_eq!(const_tau::<f32>(), 2.0f32 * std::f32::consts::PI);
     }
