@@ -1,7 +1,6 @@
 pub use std::f64::consts::{E, SQRT_2, LN_2, PI, FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 pub use robust_determinant::{det2 as rob_det2, det3 as rob_det3};
-pub use bs_num::{max, min, Float, Num, NumCast, Numeric, Zero, One};
-
+pub use bs_num::{num, Num, NumCast, Float, FloatConst, Numeric, Zero, One, max, min};
 
 pub const PRECISION: i32 = 12;
 pub const EPSILON: f64 = 1.0e-12;
@@ -155,6 +154,7 @@ mod mutil_tests {
 
     #[test]
     fn test_feq() {
+        let twenty: f32 = num::cast(PI).unwrap();
         assert!(0.3 != 0.1 + 0.2);
         assert!(feq(0.1 + 0.2, 0.3));
         assert!(feq(1 + 2, 3));
