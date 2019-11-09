@@ -127,7 +127,7 @@ mod mutil_tests {
         assert_eq!(super::Z, 2usize);
     }
 
-    pub fn orientation_2d<T>(a: &[T], b: &[T], c: &[T]) -> T where T: Flt {
+    fn orientation_2d<T>(a: &[T], b: &[T], c: &[T]) -> T where T: Flt {
         let l = (a[1] - c[1]) * (b[0] - c[0]);
         let r = (a[0] - c[0]) * (b[1] - c[1]);
         let det = l - r;
