@@ -29,6 +29,12 @@ pub fn const_tau<T>() -> T where T: Flt {
     k * const_pi::<T>()
 }
 
+#[inline]
+pub fn const_epsilon<T>() -> T where T: Flt {
+    let eps: T = num::cast(EPSILON).unwrap();
+    eps
+}
+
 
 ///Compare two floating point values
 pub trait Feq: Numeric {
@@ -164,23 +170,31 @@ mod mutil_tests {
     const Z: f64 = X + Y;
     const PRECISION: i32 = 8;
 
-
     #[test]
     fn test_indexes() {
         assert_eq!(super::X, 0usize);
         assert_eq!(super::Y, 1usize);
         assert_eq!(super::Z, 2usize);
     }
-
+    pub fn orientation_2d<T>(a: &[T], b: &[T], c: &[T]) -> T where T: Flt {
+        let l = (a[1] - c[1]) * (b[0] - c[0]);
+        let r = (a[0] - c[0]) * (b[1] - c[1]);
+        let det = l - r;
+        det
+    }
     fn test_sample<T>(v: T) where T: Flt {
+
+        let m = T::from(EPSILON).unwrap();
         let pi: T = T::PI();
         let other_pi: T = num::cast(PI).unwrap();
-        println!("value {:?} = {:?}, {:?}", v, pi, other_pi)
+        println!("value {:?} = {:?}, {:?}, {:?}", v, pi, other_pi, m)
     }
 
     #[test]
     fn test_numerics() {
+        assert_eq!(orientation_2d(&[0.1, 0.1], &[0.1, 0.1], &[0.3, 0.7]), 0.);
         test_sample(3.14f32);
+        assert_eq!(const_epsilon::<f64>(), EPSILON);
         assert_eq!(const_pi::<f64>(), PI);
         assert_eq!(const_tau::<f64>(), 2.0 * PI);
         assert_eq!(const_pi::<f32>(), std::f32::consts::PI);
